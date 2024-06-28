@@ -8,15 +8,19 @@ namespace SystemAdmin.Controllers
     {       
 
         private readonly HttpClient _httpClient;
+        private readonly IConfiguration _config;
+        private readonly string _baseUrl = "";
 
-        public StatusController(HttpClient httpClient)
+        public StatusController(HttpClient httpClient, IConfiguration config)
         {
             _httpClient = httpClient;
+            _config = config;
+            _baseUrl = _config.GetValue<string>("ApiSettings:ApiBaseUri") ?? "";
         }
 
         public async Task<IActionResult> Index()
         {
-            var response = await _httpClient.GetStringAsync("https://localhost:54278/api/Statuses/GetStatuses");
+            var response = await _httpClient.GetStringAsync(Path.Combine(_baseUrl, "api/Statuses/GetStatuses"));
             var statuses = JsonConvert.DeserializeObject<List<StatusModel>>(response);
 
             //ViewBag.Statuses = statuses;

@@ -68,12 +68,12 @@
         <script>
             $(document).ready(function() {
                 const connection = new signalR.HubConnectionBuilder()
-                    .withUrl("https://localhost:54278/statusHub")
+                    .withUrl("http://globalintegrationapi/statusHub")
                     .build();
 
                 function fetchInitialData() {
                     return $.ajax({
-                        url: 'https://localhost:54278/api/Statuses/GetStatuses',
+                        url: 'http://globalintegrationapi/api/Statuses/GetStatuses',
                         method: 'GET',
                         dataType: 'json'
                     });
