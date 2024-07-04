@@ -4,10 +4,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient(); // Register HttpClient
 
-// Read the BaseUrl from the configuration
-//var baseUrl = builder.Configuration.GetValue<string>("ApiSettings:BaseUrl");
-//builder.Services.AddSingleton(new ApiService(baseUrl));
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -17,7 +13,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();

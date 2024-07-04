@@ -15,7 +15,7 @@ namespace SystemAdmin.Controllers
         {
             _httpClient = httpClient;
             _config = config;
-            _baseUrl = _config.GetValue<string>("ApiSettings:ApiBaseUri") ?? "";
+            _baseUrl = _config.GetValue<string>("Urls:BaseUrl") ?? "";
         }
 
         public async Task<IActionResult> Index()
