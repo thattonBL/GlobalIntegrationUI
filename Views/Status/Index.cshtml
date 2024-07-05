@@ -15,32 +15,36 @@
         body {
             background-color: #000000c2; 
         }
-        .badge-identifier {
+
+        .accordion-content p {
+            margin: 0;
+        }
+        /* .badge-identifier {
             display: inline-block;
             margin-right: 5px;
             padding: 5px;
             border-radius: 5px;
-            background-color: #16a085; /* Dark teal */
-            color: #ffffff; /* White */
-        }
-        .accordion-header {
+            background-color: #16a085;
+            color: #ffffff; 
+        }*/
+        /* .accordion-header {
             font-size: 18px;
             font-weight: bold;
             cursor: pointer;
             text-align: left;
-        }
-        .accordion-content {
+        } */
+        /* .accordion-content {
             display: none;
         }
         .accordion-content table {
             width: 100%;
             border-collapse: collapse;
-        }
-        .accordion-content table th,
+        } */
+        /* .accordion-content table th,
         .accordion-content table td {
             border: 1px solid #ddd;
             padding: 8px;
-        }
+        }  */
         h2 {
             font-size: 28px;
             font-weight: bold;
@@ -58,7 +62,7 @@
 <body>
     <div class="container mt-5">
         <h2 class="mb-4 text-center">Status Tree</h2>
-        <div id="statusAccordion" class="border rounded p-3 bg-light"></div>
+        <div id="accordions"></div>
     </div>
 
     @section scripts {
@@ -70,9 +74,9 @@
             console.log('from settings 1 ' + @Json.Serialize(Configuration["Urls:BaseUrl"]));
             
             var connectionBaseUrl = @Json.Serialize(Configuration["Urls:BaseUrl"]);
-            var initialStatuses = @Html.Raw(JsonConvert.SerializeObject(Model));
+            //var initialStatuses = @Html.Raw(JsonConvert.SerializeObject(Model));
 
-            initiateSignalRConnection(connectionBaseUrl, initialStatuses);
+            initiateSignalRConnection(connectionBaseUrl);
         </script>
     }
 </body>
