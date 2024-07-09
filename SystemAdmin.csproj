@@ -17,6 +17,7 @@
   <ItemGroup>
     <Folder Include="wwwroot\lib\jstree\" />
     <Folder Include="wwwroot\lib\signalr\" />
+    <Folder Include="wwwroot\images\" />
   </ItemGroup>
 
 </Project>

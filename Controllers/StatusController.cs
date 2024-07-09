@@ -20,11 +20,11 @@ namespace SystemAdmin.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var response = await _httpClient.GetStringAsync(Path.Combine(_baseUrl, "api/Statuses/GetStatuses"));
-            var statuses = JsonConvert.DeserializeObject<List<StatusModel>>(response);
+            //var response = await _httpClient.GetStringAsync(Path.Combine(_baseUrl, "api/Statuses/GetStatuses"));
+            //var statuses = JsonConvert.DeserializeObject<List<StatusModel>>(response);
 
             //ViewBag.Statuses = statuses;
-            return View(statuses);
+            return View();
         }        
     }
 }
