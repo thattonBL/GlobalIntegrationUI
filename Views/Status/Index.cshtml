@@ -38,6 +38,8 @@
         </div>
     </div>
 
+    <textarea hidden id="baseUrl">@ViewData["baseUrl"]</textarea>
+
     @section scripts {
         <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
@@ -52,9 +54,11 @@
             });
 
             console.log('from settings 1 ' + @Json.Serialize(Configuration["Urls:BaseUrl"]));
-            
-            var connectionBaseUrl = @Json.Serialize(Configuration["Urls:BaseUrl"]);
-            //var initialStatuses = @Html.Raw(JsonConvert.SerializeObject(Model));
+
+            var connectionBaseUrl = $('#baseUrl').val(); + '"';
+            if (connectionBaseUrl == null || connectionBaseUrl == undefined || connectionBaseUrl == "") {
+                connectionBaseUrl = @Json.Serialize(Configuration["Urls:BaseUrl"]);
+            }
 
             initiateSignalRConnection(connectionBaseUrl);
         </script>

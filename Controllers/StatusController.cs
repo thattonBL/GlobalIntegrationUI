@@ -20,10 +20,8 @@ namespace SystemAdmin.Controllers
 
         public async Task<IActionResult> Index()
         {
-            //var response = await _httpClient.GetStringAsync(Path.Combine(_baseUrl, "api/Statuses/GetStatuses"));
-            //var statuses = JsonConvert.DeserializeObject<List<StatusModel>>(response);
-
-            //ViewBag.Statuses = statuses;
+            var baseUrl = Environment.GetEnvironmentVariable("BASE_URL") ?? "";
+            ViewData["baseUrl"] = baseUrl;
             return View();
         }        
     }
