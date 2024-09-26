@@ -150,6 +150,8 @@ function createAccordion(id, jsonData) {
                 return "3rd Party System B33";
             case "NewRsiMessageSubmitted":
                 return "Gateway Request API";
+            case "RequestStatusChangedToCancelled":
+                return "Gateway Request API";
             default:
                 "Unknown";
         }
