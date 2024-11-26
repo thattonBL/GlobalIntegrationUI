@@ -9,10 +9,10 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["src/Microservices/GlobalIntegrationUI/SystemAdmin.csproj", "src/Microservices/GlobalIntegrationUI/"]
-RUN dotnet restore "./src/Microservices/GlobalIntegrationUI/./SystemAdmin.csproj"
+COPY ["SystemAdmin.csproj", "."]
+RUN dotnet restore "./SystemAdmin.csproj"
 COPY . .
-WORKDIR "/src/src/Microservices/GlobalIntegrationUI"
+WORKDIR "/src/."
 RUN dotnet build "./SystemAdmin.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
