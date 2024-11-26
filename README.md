@@ -1,2 +1,1 @@
-# GlobalIntegrationUI
-The UI For the Global Integration
+System Admin UI..

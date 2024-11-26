@@ -1,0 +1,67 @@
+﻿@using Newtonsoft.Json
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "Status Tree";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewData["Title"]</title>
+    @* <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> *@
+    @* <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css"> *@
+</head>
+<body>
+    <div class="header">
+        <h1>Gateway Monitoring Services</h1>
+        <button class="toggle-btn" id="toggleBtn">
+            <svg viewBox="0 0 100 80" width="40" height="40">
+                <rect width="100" height="20"></rect>
+                <rect y="30" width="100" height="20"></rect>
+                <rect y="60" width="100" height="20"></rect>
+            </svg>
+        </button>
+    </div>
+    <div class="main">
+        <div class="side-panel" id="sidePanel">
+            <div class="side-panel-content">
+                <img src="~/images/building-33.jpeg" />
+                <p><strong>Service Status: </strong><span id="serviceStatusText"></span></p>
+                <ul>
+                    <li id="consumerToggleButton">Stop Service</li>
+                </ul>
+            </div>           
+        </div>
+        <div class="content" id="content">
+            <div id="accordions"></div>
+        </div>
+    </div>
+
+    <textarea hidden id="baseUrl">@ViewData["baseUrl"]</textarea>
+
+    @section scripts {
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.9/signalr.min.js"></script>
+        <script>
+            document.getElementById('toggleBtn').addEventListener('click', function () {
+                var sidePanel = document.getElementById('sidePanel');
+                var content = document.getElementById('content');
+                sidePanel.classList.toggle('collapsed');
+                content.classList.toggle('collapsed');
+            });
+
+            
+
+            var connectionBaseUrl = $('#baseUrl').val(); + '"';
+            if (connectionBaseUrl == null || connectionBaseUrl == undefined || connectionBaseUrl == "") {
+                connectionBaseUrl = @Json.Serialize(Configuration["Urls:BaseUrl"]);
+            }
+            console.log('connectionBaseUrl = ' + connectionBaseUrl);
+            initiateSignalRConnection(connectionBaseUrl);
+        </script>
+    }
+</body>
+</html>
