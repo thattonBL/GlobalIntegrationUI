@@ -7,6 +7,7 @@ variables:
   AZURE_CONTAINER_APP_NAME: 'gateway-global-integration-ui-iac'
   RESOURCE_GROUP: 'Gateway-Resources-IAC'
   DOCKER_IMAGE: 'attonbomb/systemadmin:latest'  # Replace with your Docker Hub image path
+  AZURE_SUBSCRIPTION: 'Gateway-Resources-IAC-MI-Conn-2'
 
 steps:
   - task: Docker@2
@@ -27,7 +28,7 @@ steps:
 
   - task: AzureCLI@2
     inputs:
-      azureSubscription: 'Gateway-Resources-IAC-MI-Conn-2'
+      azureSubscription: $(AZURE_SUBSCRIPTION)
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |

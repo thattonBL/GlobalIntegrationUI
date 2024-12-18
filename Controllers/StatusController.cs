@@ -20,9 +20,9 @@ namespace SystemAdmin.Controllers
 
         public async Task<IActionResult> Index()
         {
-            //var baseUrl = Environment.GetEnvironmentVariable("BASE_URL") ?? "";
-            var request = HttpContext.Request;
-            var baseUrl = $"{request.Scheme}://{request.Host}";
+            var baseUrl = Environment.GetEnvironmentVariable("BASE_URL") ?? "";
+            //var request = HttpContext.Request;
+            //var baseUrl = $"{request.Scheme}://{request.Host}";
             ViewData["baseUrl"] = baseUrl;
             return View();
         }        
