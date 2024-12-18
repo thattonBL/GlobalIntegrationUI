@@ -20,7 +20,7 @@ steps:
       echo "Determining Azure subscription..."
       if [ "$(Build.SourceBranchName)" = "development" ]; then
         echo "##vso[task.setvariable variable=AZURE_SUBSCRIPTION]Dev-Gateway-Resources-MS"
-        echo "##vso[task.setvariable variable=DOCKER_IMAGE]attonbomb/systemadmin:develop"
+        echo "##vso[task.setvariable variable=DOCKER_IMAGE]attonbomb/systemadmin:dev"
       else
         echo "##vso[task.setvariable variable=AZURE_SUBSCRIPTION]Gateway-Resources-IAC-MI-Conn-2"
       fi
@@ -39,7 +39,7 @@ steps:
         az containerapp update \
           --name gateway-global-integration-ui-iac
           --resource-group Gateway-IAC-Resources
-          --image attonbomb/systemadmin:latest
+          --image $(DOCKER_IMAGE)
           --registry-server hub.docker.com
 
         echo "Global Integration API Container App updated successfully"

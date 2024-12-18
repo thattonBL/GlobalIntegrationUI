@@ -27,11 +27,11 @@ jobs:
       # Step 3: Build the Docker image
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/systemadmin:latest -f ./Dockerfile .
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/systemadmin:dev -f ./Dockerfile .
       # Step 4: Push Docker image to Docker Hub
       - name: Push Docker image to Docker Hub
         run: |
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/systemadmin:develop
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/systemadmin:dev
       # Step 5: Trigger Azure Release Pipeline
       - name: Trigger Azure DevOps Pipeline
         uses: Azure/pipelines@v1.2
