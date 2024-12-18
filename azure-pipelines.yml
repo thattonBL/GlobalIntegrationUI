@@ -13,6 +13,17 @@ steps:
     inputs:
       command: 'login'
       containerRegistry: 'attonbomb-DockerHub-SC'
+  
+  # Set the Azure subscription based on the branch
+  - script: |
+      echo "Determining Azure subscription..."
+      if [ "$(Build.SourceBranchName)" = "development" ]; then
+        echo "##vso[task.setvariable variable=AZURE_SUBSCRIPTION]Dev-Gateway-Resources-MS"
+        echo "##vso[task.setvariable variable=DOCKER_IMAGE]attonbomb/systemadmin:dev"
+      else
+        echo "##vso[task.setvariable variable=AZURE_SUBSCRIPTION]Gateway-Resources-IAC-MI-Conn-2"
+      fi
+    displayName: 'Set Azure Subscription'
 
   - task: AzureCLI@2
     inputs:
@@ -27,7 +38,7 @@ steps:
         az containerapp update \
           --name gateway-global-integration-ui-iac
           --resource-group Gateway-IAC-Resources
-          --image attonbomb/systemadmin:latest
+          --image $(DOCKER_IMAGE)
           --registry-server hub.docker.com
 
         echo "Global Integration API Container App updated successfully"
