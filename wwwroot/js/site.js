@@ -14,7 +14,7 @@ var connection;
 var serverBaseUrl = "";
 var serviceStatus = "Running";
 function initiateSignalRConnection(baseUrl) {
-    
+
     connection = new signalR.HubConnectionBuilder().withUrl(baseUrl + "/statusHub").build();
     serverBaseUrl = baseUrl;
     // Start the SignalR connection and feedback any errors
@@ -25,8 +25,14 @@ function initiateSignalRConnection(baseUrl) {
     // Subscribe to the SignalR events after the connection is established
     connection.on("SendStatusUpdate", (identifier, jsonAuditString) => {
         console.log("SendStatusUpdate event received identifier:" + identifier + " json: " + jsonAuditString);
-        var jsonObject = JSON.parse(jsonAuditString);
-        createAccordion(identifier, jsonObject);
+        try {
+            var jsonObject = JSON.parse(jsonAuditString);
+            console.log("Parsed object:", jsonObject);
+            updateTable(identifier, jsonObject);
+            incrementPagedAndTotalDataCount();
+        } catch (error) {
+            console.error("Error parsing JSON:", error);
+        }
     });
 
     connection.onclose(() => {
@@ -47,15 +53,15 @@ function initiateSignalRConnection(baseUrl) {
 
 async function stopGrpcService() {
     try {
-       var response = await connection.invoke("StopNamedConsumer", "grpcService");
-       if(response){
-           const liElement = document.getElementById("consumerToggleButton");
-           liElement.textContent = 'Restart Service';
-           liElement.classList.add('success');
-           liElement.classList.remove('failure');
-           serviceStatus = "Stopped";
-           document.getElementById("serviceStatusText").innerHTML = serviceStatus;
-       }
+        var response = await connection.invoke("StopNamedConsumer", "grpcService");
+        if (response) {
+            const liElement = document.getElementById("consumerToggleButton");
+            liElement.textContent = 'Restart Service';
+            liElement.classList.add('success');
+            liElement.classList.remove('failure');
+            serviceStatus = "Stopped";
+            document.getElementById("serviceStatusText").innerHTML = serviceStatus;
+        }
     } catch (err) {
         console.error(err);
     }
@@ -77,97 +83,66 @@ async function restartGrpcService() {
     }
 }
 
-function createAccordionContent(data, isFirst) {
-    var content = '<div class="accordion-content">';
-    for (var key in data) {
-        if (key !== "EventName" && key !== "AppName" && key !== "Identifier") {
-            content += '<p><strong>' + key + ':</strong> ' + data[key] + '</p>';
-        }
+function updateTable(identifier, dataArray, isInitialConnection) {
+    if (!Array.isArray(dataArray) || dataArray.length === 0) {
+        console.error("Invalid or empty data array:", dataArray);
+        return;
     }
-    if (isFirst) {
-        content += '<p><strong>Audit trail:</strong></p>';
-    } 
-    content += '</div>';
-    return content;
+
+    // Find the table body or create it if not exists
+    let table = document.getElementById("tblData");
+    if (!table) {
+        console.error("Table not found.");
+        return;
+    }
+
+    dataArray.forEach(data => {
+        // Extract fields with fallbacks for undefined values
+        const title = data.Title || "N/A";
+        const author = data.Author || "N/A";
+        const collectionCode = data.CollectionCode || "N/A";
+        const creationTime = data.CreationTime || "N/A";
+        const eventName = data.EventName || "N/A";
+        const actions = '<a href="#" class="btn btn-sm btn-danger m-1 p-1">' + 'Remove' + '</a>';
+
+        // Check if row exists for the given identifier
+        let existingRow = document.querySelector(`tbody tr[data-identifier='${identifier}']`);
+        if (existingRow) {
+            // Update the existing row
+            existingRow.innerHTML = `
+            <td>${title}</td>
+            <td>${author}</td>
+            <td>${collectionCode}</td>
+            <td>${creationTime}</td>
+            <td>${eventName}</td>
+            <td>${actions}</td>
+        `;
+        } else {
+            // Add a new row if not exists
+            let newRow = table.insertRow(-1);
+            newRow.setAttribute("data-identifier", identifier);
+            newRow.innerHTML = `
+            <td>${title}</td>
+            <td>${author}</td>
+            <td>${collectionCode}</td>
+            <td>${creationTime}</td>
+            <td>${eventName}</td>
+            <td>${actions}</td>
+        `;
+        }
+    });
 }
 
-function createNestedAccordion(id, item, headerColor) {   
-    var accordionHtml = '';
-    var header = item.EventName + ' - ' + item.AppName + ' - ' + item.Identifier;
-    var content = createAccordionContent(item, false);
-    accordionHtml += '<h3 style=background-color:' + headerColor  + '>' + header + '</h3><div>' + content + '</div>';
-    return accordionHtml;
-}
+function incrementPagedAndTotalDataCount() {
+    // Retrieve the DataTable instance
+    const dataTable = $('#tblData').DataTable();
 
-function createAccordion(id, jsonData) {
-    var accordionHtml = '<div id="accordion' + id + '">';
+    // Get the current total record count and increment by 1
+    const newTotalRecords = dataTable.page.info().recordsTotal + 1;
 
-    var item = jsonData.shift();
-    var headerCssColor = getCssColor(item.EventName);
-    var header = item.EventName.split(".").shift() + ' - ' + getAppName(item.AppName, item.EventName.split(".").shift()) + ' - ' + item.Identifier;
-    var content = createAccordionContent(item, true);
+    // Manually update the total records in DataTables settings
+    dataTable.settings()[0]._iRecordsTotal = newTotalRecords;
 
-    var nestedAccordionHtml = '';
-    jsonData.forEach(function (item, index) {
-        nestedAccordionHtml += '<div id="nestedAccordion' + id + '-' + index + '">';
-        headerColor = getCssColor(item.EventName);
-        var nestedAccordion = createNestedAccordion(id + '-' + index, item, headerColor);
-        nestedAccordionHtml += nestedAccordion;
-        nestedAccordionHtml += '</div>';
-    });
-
-    accordionHtml += '<h3 style=background-color:' + headerCssColor + '>' + header + '</h3><div>' + content + nestedAccordionHtml + '</div>';
-    accordionHtml += '</div>';
-
-    var collapsed = false;
-    var existingElement = $("#accordions").find('#accordion' + id);
-    if (existingElement.length != 0) {
-        collapsed = existingElement.accordion("option", "active");
-        existingElement.replaceWith(accordionHtml);
-    } else {
-        $('#accordions').prepend(accordionHtml);
-    }
-
-    $('#accordion' + id).accordion({
-        collapsible: true,
-        heightStyle: "content",
-        active: collapsed
-    });
-
-    // Initialize the nested accordions
-    jsonData.forEach(function (item, index) {
-        $('#nestedAccordion' + id + '-' + index).accordion({
-            collapsible: true,
-            heightStyle: "content",
-            active: false
-        });
-    });
-
-    function getAppName(appName, eventName){
-        if (appName != "") return appName;
-        switch (eventName) {
-            case "RsiMessagePublished":
-                return "3rd Party System B33";
-            case "NewRsiMessageSubmitted":
-                return "Gateway Request API";
-            case "RequestStatusChangedToCancelled":
-                return "Gateway Request API";
-            default:
-                "Unknown";
-        }
-    }
-
-    function getCssColor(eventName) {
-        var eventNameTrimed = eventName.split(".").shift();
-        switch (eventNameTrimed) {
-            case "RsiMessagePublished":
-                return "seagreen";
-            case "NewRsiMessageRecieved":
-                return "chocolate";
-            case "NewRsiMessageSubmitted":
-                return "darkcyan";
-            default:
-                return "indianred";
-        }
-    }
+    // Redraw the table to reflect the updated data count
+    dataTable.draw();
 }

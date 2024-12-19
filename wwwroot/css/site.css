@@ -1,15 +1,24 @@
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+.container {
+    flex-grow: 1; /* Ensures the container takes up available space */
+    margin-left: 20px; /* Space between container and side-panel */
+    margin-right: 370px; /* Adjust based on the width of the side-panel */
+    padding: 20px; /* Optional padding for inner content spacing */
+    background-color: #fff; /* Optional background to differentiate sections */
+    border-radius: 8px; /* Optional rounded corners */
 }
 
 body, html {
@@ -17,14 +26,16 @@ body, html {
     padding: 0;
     height: 100%;
     font-family: 'Montserrat', sans-serif;
-    background-color: #eee;
-    color: #E0E0E0;
+    background-color: #fff;
+    /*    color: #E0E0E0;
+*/
 }
 
 .header {
     position: fixed;
     top: 0;
-    width: 100%;
+    left: 0; /* Ensure it starts from the left edge */
+    width: 100%; /* Make it span the entire width */
     background-color: #0078a3;
     color: #E0E0E0;
     padding: 10px 20px;
@@ -42,14 +53,17 @@ body, html {
         font-weight: 700;
     }
 
+
 .main {
     display: flex;
-    height: 100%;
-    flex-direction: column;
+    height: calc(100% - 60px); /* Adjust height to account for the header */
+    flex-direction: row;
+    margin-top: 60px; /* Space below the fixed header */
+    gap: 20px;
 }
 
 .side-panel {
-    width: 250px;
+    width: 325px; /* Keep the fixed width for the side-panel */
     overflow-y: auto;
     transition: width 0.3s;
     position: fixed;
@@ -64,34 +78,34 @@ body, html {
         width: 10px;
     }
 
-    .side-panel-content {
-        padding: 20px;
+.side-panel-content {
+    padding: 20px;
+}
+
+    .side-panel-content p {
+        color: #333;
     }
 
-        .side-panel-content p {
-            color: #333;
-        }
+.side-panel ul {
+    list-style-type: none;
+    padding: 20px;
+    padding-top: 0px;
+    margin: 0;
+}
 
-    .side-panel ul {
-        list-style-type: none;
-        padding: 20px;
-        padding-top: 0px;
-        margin: 0;
+    .side-panel ul li {
+        padding: 10px;
+        margin: 5px 0;
+        background-color: crimson;
+        border-radius: 4px;
+        cursor: pointer;
+        color: white;
+        text-align: center;
     }
 
-        .side-panel ul li {
-            padding: 10px;
-            margin: 5px 0;
-            background-color: crimson;
-            border-radius: 4px;
-            cursor: pointer;
-            color: white;
-            text-align: center;
+        .side-panel ul li:hover {
+            background-color: brown;
         }
-
-            .side-panel ul li:hover {
-                background-color: brown;
-            }
 
 .success {
     background-color: seagreen;
@@ -164,5 +178,17 @@ h2 {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px; /* Vertical spacing */
     text-align: center;
-    border: 2px solid #ddd; /* Add border to the title box */
+    border: 2px solid #ddd;
+}
+
+.date-filters .form-group {
+    margin-bottom: 15px;
+}
+
+#startDate, #endDate {
+    width: 150px;
+    display: inline-block;
+    margin-right: 10px;
+    padding: 5px;
+    font-size: 14px;
 }
