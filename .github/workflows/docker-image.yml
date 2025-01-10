@@ -11,11 +11,63 @@ on:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: read
+      checks: write
+    
     steps:
       # Step 1: Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v2
+
+       # Step 2: Set up .NET environment
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0'
+
+      # Step 3: Authenticate with Azure Artifacts
+      - name: Authenticate with Azure Artifacts
+        run: |
+          echo ${{ secrets.AZURE_DEVOPS_PAT }} | dotnet nuget add source --store-password-in-clear-text \
+          --name azure-artifacts https://pkgs.dev.azure.com/BritishLibrary-AppDev/Gateway/_packaging/Gateway_Nuget_Feed/nuget/v3/index.json \
+          --username GitHubActions --password ${{ secrets.AZURE_DEVOPS_PAT }}
+
+      # Step 4: Restore dependencies
+      - name: Restore dependencies for Unit Tests
+        run: dotnet restore SystemAdmin-UnitTests/SystemAdmin-UnitTests.csproj
+
+      # Step 5: Run Unit Tests
+      - name: Run Unit Tests
+        run: dotnet test SystemAdmin-UnitTests/SystemAdmin-UnitTests.csproj --logger "trx;LogFileName=unit-test-results.trx" --results-directory ./TestResults --verbosity normal 
+
+      # Step 6: Restore Dependencies for Functional Tests
+      - name: Restore dependencies for Functional Tests
+        run: dotnet restore SystemAdmin-FunctionalTests/SystemAdmin-FunctionalTests.csproj
+
+      # Step 7: Run Functional Tests
+      - name: Run Functional Tests
+        run: dotnet test SystemAdmin-FunctionalTests/SystemAdmin-FunctionalTests.csproj --logger "trx;LogFileName=functional-test-results.trx" --results-directory ./TestResults --verbosity normal
+
+      # Step 8: List Test Result Files
+      - name: List Test Result Files
+        run: ls -R ./TestResults
+      
+      # Step 9: Upload Test Results with Test Reporter
+      - name: Upload Test Results
+        uses: dorny/test-reporter@v1
+        with:
+          name: Unit and Functional Tests
+          path: ./TestResults/*.trx
+          reporter: dotnet-trx
+
+      # Step 10: Extract the Version tag from the Docker File
+      - name: Extract Version Tag
+        id: extract_version
+        run: |
+          VERSION=$(grep 'LABEL version=' SystemAdmin/Dockerfile | sed 's/.*"\(.*\)"/\1/')
+          echo "VERSION=$VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       # Step 2: Login to Docker Hub
       - name: Log in to Docker Hub
@@ -27,11 +79,16 @@ jobs:
       # Step 3: Build the Docker image
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/systemadmin:latest -f ./Dockerfile .
+          echo "VERSION=$VERSION"
+          echo "VERSION from GITHUB_ENV is: ${{ env.VERSION }}"
+          docker build --build-arg AZURE_DEVOPS_PAT=${{ secrets.AZURE_DEVOPS_PAT }} -t ${{ secrets.DOCKER_HUB_USERNAME }}/systemadmin:latest -t ${{ secrets.DOCKER_HUB_USERNAME }}/systemadmin:${{ env.VERSION }} -f ./Dockerfile .
+      
       # Step 4: Push Docker image to Docker Hub
       - name: Push Docker image to Docker Hub
         run: |
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/systemadmin:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/gatewaygrpcservice:${{ env.VERSION }}
+      
       # Step 5: Trigger Azure Release Pipeline
       - name: Trigger Azure DevOps Pipeline
         uses: Azure/pipelines@v1.2
@@ -39,5 +96,6 @@ jobs:
           azure-devops-project-url: ${{ secrets.AZURE_DEVOPS_PROJECT_URL }}
           azure-pipeline-name: 'thattonBL.GlobalIntegrationUI'
           azure-devops-token: ${{ secrets.AZURE_DEVOPS_PAT }}
-      
+          azure-pipeline-variables: '{"DOCKER_IMAGE_VERSION": "${{ env.VERSION }}"}'
+          
       - uses: actions/checkout@v2
