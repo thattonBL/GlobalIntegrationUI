@@ -87,7 +87,7 @@ jobs:
       - name: Push Docker image to Docker Hub
         run: |
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/systemadmin:latest
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/gatewaygrpcservice:${{ env.VERSION }}
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/systemadmin:${{ env.VERSION }}
       
       # Step 5: Trigger Azure Release Pipeline
       - name: Trigger Azure DevOps Pipeline
