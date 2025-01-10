@@ -22,4 +22,5 @@ RUN dotnet publish "./SystemAdmin.csproj" -c $BUILD_CONFIGURATION -o /app/publis
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+LABEL version="1.0.0"
 ENTRYPOINT ["dotnet", "SystemAdmin.dll"]
