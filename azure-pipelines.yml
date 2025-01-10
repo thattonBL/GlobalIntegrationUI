@@ -4,7 +4,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  AZURE_CONTAINER_APP_NAME: 'gateway-global-integration-ui-iac'
+  AZURE_CONTAINER_APP_NAME: 'gateway-global-int-ui-iac'
   RESOURCE_GROUP: 'Gateway-Resources-IAC'
   DOCKER_IMAGE: 'attonbomb/systemadmin'  # Replace with your Docker Hub image path
   AZURE_SUBSCRIPTION: 'Gateway-Resources-IAC-MI-Conn-2'

@@ -8,11 +8,14 @@ EXPOSE 8081
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
+
 WORKDIR /src
-COPY ["SystemAdmin.csproj", "."]
-RUN dotnet restore "./SystemAdmin.csproj"
+COPY ["SystemAdmin/SystemAdmin.csproj", "SystemAdmin/"]
+
+RUN dotnet restore "./SystemAdmin/./SystemAdmin.csproj"
+
 COPY . .
-WORKDIR "/src/."
+WORKDIR "/src/SystemAdmin"
 RUN dotnet build "./SystemAdmin.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
