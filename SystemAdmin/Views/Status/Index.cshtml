@@ -11,6 +11,143 @@
     <title>@ViewData["Title"]</title>
     @* <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> *@
     @* <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css"> *@
+    @* <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"> *@
+    @* <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap.css"> *@
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+    <style>
+        /* General Page Styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        .container {
+            margin-top: 20px;
+        }
+
+        .table-responsive {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background: white;
+            border-radius: 8px;
+        }
+
+        /* DataTable Row Styles */
+        table.dataTable > tbody > tr.event-green > td {
+            background-color: #28a745 !important;
+            color: white !important;
+            font-weight: bold;
+        }
+
+        table.dataTable > tbody > tr.event-orange > td {
+            background-color: #fd7e14 !important;
+            color: white !important;
+            font-weight: bold;
+        }
+
+        table.dataTable > tbody > tr.event-blue > td {
+            background-color: #007bff !important;
+            color: white !important;
+            font-weight: bold;
+        }
+
+        table.dataTable > tbody > tr {
+            background-color: darkcyan;
+        }
+
+        /* Accordion Styling */
+        .accordion {
+            background-color: #f8f9fa; /* Light grey background */
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            max-width: 600px;
+        }
+
+        .accordion-item {
+            margin: 10px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #ffffff; /* White background for the accordion item */
+        }
+
+        .accordion-header {
+            color: #ffffff; /* White text */
+            padding: 10px 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-bottom: 1px solid #787c80; /* Slightly darker border */
+            max-width: 800px; /* Limit the width of the accordion header */
+            margin: 0 auto; /* Center the header within its container */
+            text-align: center; /* Optional: Center the text */
+        }
+
+            .accordion-header:hover {
+                background-color: #606468; /* Darker grey on hover */
+            }
+
+        .accordion-button {
+            font-size: 1.2rem;
+            text-align: left;
+            width: 100%;
+            background: none;
+            border: none;
+            outline: none;
+        }
+
+        .accordion-body {
+            background-color: darkgray; /* Light gray background */
+            font-size: 0.95rem;
+            color: #212529; /* Neutral dark text */
+            max-width: 800px; /* Limit the width of the accordion body */
+            margin: 0 auto; /* Center the accordion content */
+            border-radius: 5px; /* Rounded corners */
+        }
+
+        /* Table Styling */
+        .table {
+            background-color: #ffffff; /* White background for the table */
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow around the table */
+        }
+
+        .table-bordered th, .table-bordered td {
+            border: 1px solid #dee2e6; /* Light border for table cells */
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: #f8f9fa; /* Light hover effect */
+            transition: background-color 0.3s ease-in-out; /* Smooth hover transition */
+        }
+
+        thead.bg-dark th {
+            background-color: #343a40; /* Dark header */
+            color: #ffffff; /* White text */
+        }
+
+        tbody > tr {
+            transition: background-color 0.3s ease-in-out; /* Smooth row hover effect */
+        }
+
+        /* Row-specific colors */
+        .event-green td {
+            background-color: #28a745 !important; /* Green */
+            color: #ffffff; /* White text */
+        }
+
+        .event-orange td {
+            background-color: #fd7e14 !important; /* Orange */
+            color: #ffffff; /* White text */
+        }
+
+        .event-blue td {
+            background-color: #007bff !important; /* Blue */
+            color: #ffffff; /* White text */
+        }
+    </style>
 </head>
 <body>
     <div class="header">
@@ -18,6 +155,7 @@
         <button class="toggle-btn" id="toggleBtn">
             <svg viewBox="0 0 100 80" width="40" height="40">
                 <rect width="100" height="20"></rect>
+                <rect y="30" width="100" height="20"></rect>
                 <rect y="30" width="100" height="20"></rect>
                 <rect y="60" width="100" height="20"></rect>
             </svg>
@@ -31,10 +169,44 @@
                 <ul>
                     <li id="consumerToggleButton">Stop Service</li>
                 </ul>
-            </div>           
+            </div>
         </div>
-        <div class="content" id="content">
-            <div id="accordions"></div>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-12">
+                    <!-- Date Range Filters -->
+                    <div>
+                        <div class="form-group d-inline-block mb-2">
+                            <label for="startDate">Start Date:</label>
+                            <input type="date" id="startDate" class="form-control d-inline-block" />
+                        </div>
+                        <div class="form-group d-inline-block mb-2">
+                            <label for="endDate">End Date:</label>
+                            <input type="date" id="endDate" class="form-control d-inline-block" />
+                        </div>
+                        <div class="mb-2">
+                            <button id="filterDateRange" class="btn btn-primary mx-1">Filter</button>
+                            <button id="resetFilter" class="btn btn-secondary mx-1">Reset</button>
+                        </div>
+                    </div>
+
+                    <!-- DataTable -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover table-striped text-center" id="tblData">
+                            <thead class="bg-dark text-light">
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th>CollectionCode</th>
+                                    <th>CreationTime</th>
+                                    <th>EventName</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -45,6 +217,10 @@
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.9/signalr.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        @*         <script src="~/js/datatable.js"></script>
+    *@
+        <script src="~/js/datatable.js?v=@DateTime.Now.Ticks"></script>
         <script>
             document.getElementById('toggleBtn').addEventListener('click', function () {
                 var sidePanel = document.getElementById('sidePanel');
@@ -53,13 +229,13 @@
                 content.classList.toggle('collapsed');
             });
 
-            
+            console.log('from settings 1 ' + @Json.Serialize(Configuration["Urls:BaseUrl"]));
 
             var connectionBaseUrl = $('#baseUrl').val(); + '"';
             if (connectionBaseUrl == null || connectionBaseUrl == undefined || connectionBaseUrl == "") {
                 connectionBaseUrl = @Json.Serialize(Configuration["Urls:BaseUrl"]);
             }
-            console.log('connectionBaseUrl = ' + connectionBaseUrl);
+
             initiateSignalRConnection(connectionBaseUrl);
         </script>
     }
